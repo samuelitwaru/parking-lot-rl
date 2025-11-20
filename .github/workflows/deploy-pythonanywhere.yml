@@ -52,9 +52,9 @@ jobs:
         print("Starting deployment to PythonAnywhere...")
         
         # 1. Pull latest code from repository
-        print("Pulling latest code from: " + f'{base_url}consoles/{username}$bash/send_input/')
+        print("Pulling latest code from: " + f'{base_url}consoles/{username}$43517576/send_input/')
         pull_response = requests.post(
-            f'{base_url}consoles/{username}$bash/send_input/',
+            f'{base_url}consoles/{username}$43517576/send_input/',
             headers=headers,
             json={'input': 'cd ~/parking-lot-rl && git pull origin main\n'}
         )
