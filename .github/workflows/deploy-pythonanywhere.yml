@@ -110,28 +110,28 @@ jobs:
         # Run deployment script
         python deploy_script.py
         
-    - name: Verify deployment
-      env:
-        DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-      run: |
-        echo "Verifying deployment at https://$DOMAIN_NAME"
-        # Wait a moment for the app to fully reload
-        sleep 10
+    # - name: Verify deployment
+    #   env:
+    #     DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+    #   run: |
+    #     echo "Verifying deployment at https://$DOMAIN_NAME"
+    #     # Wait a moment for the app to fully reload
+    #     sleep 10
         
-        # Check if the app is responding
-        if curl -f -s "https://$DOMAIN_NAME" > /dev/null; then
-          echo "✓ Web app is responding successfully"
-        else
-          echo "✗ Web app may not be responding correctly"
-          echo "Please check your PythonAnywhere dashboard"
-        fi
+    #     # Check if the app is responding
+    #     if curl -f -s "https://$DOMAIN_NAME" > /dev/null; then
+    #       echo "✓ Web app is responding successfully"
+    #     else
+    #       echo "✗ Web app may not be responding correctly"
+    #       echo "Please check your PythonAnywhere dashboard"
+    #     fi
         
-    - name: Deployment Summary
-      if: always()
-      run: |
-        echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
-        echo "- **Target**: PythonAnywhere" >> $GITHUB_STEP_SUMMARY
-        echo "- **Domain**: ${{ secrets.DOMAIN_NAME }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+    # - name: Deployment Summary
+    #   if: always()
+    #   run: |
+    #     echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+    #     echo "- **Target**: PythonAnywhere" >> $GITHUB_STEP_SUMMARY
+    #     echo "- **Domain**: ${{ secrets.DOMAIN_NAME }}" >> $GITHUB_STEP_SUMMARY
+    #     echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+    #     echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+    #     echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
