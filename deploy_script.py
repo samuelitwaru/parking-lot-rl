@@ -40,7 +40,7 @@ print("Installing dependencies...")
 pip_response = requests.post(
     f'{base_url}consoles/43517576/send_input/',
     headers=headers,
-    json={'input': 'cd ~/parking-lot-rl && pip3.11 install --user -r requirements.txt\n'}
+    json={'input': 'source ~/venv/bin/activate && cd ~/parking-lot-rl && pip3.11 install --user -r requirements.txt\n'}
 )
 
 if pip_response.status_code == 200:
