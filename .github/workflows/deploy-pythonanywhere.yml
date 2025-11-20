@@ -50,7 +50,7 @@ jobs:
         print("Starting deployment to PythonAnywhere...")
         
         # 1. Pull latest code from repository
-        print("Pulling latest code...")
+        print("Pulling latest code from: " + f'{base_url}consoles/{username}$bash/send_input/')
         pull_response = requests.post(
             f'{base_url}consoles/{username}$bash/send_input/',
             headers=headers,
