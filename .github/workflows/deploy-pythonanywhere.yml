@@ -25,9 +25,9 @@ jobs:
         
     - name: Deploy to PythonAnywhere
       env:
-        PA_USERNAME: ${{ secrets.PA_USERNAME }}
-        PA_API_TOKEN: ${{ secrets.PA_API_TOKEN }}
-        PA_DOMAIN: ${{ secrets.PA_DOMAIN }}
+        PA_USERNAME: ${{ secrets.USERNAME }}
+        PA_API_TOKEN: ${{ secrets.API_TOKEN }}
+        PA_DOMAIN: ${{ secrets.DOMAIN_NAME }}
       run: |
         # Create deployment script
         cat > deploy_script.py << 'EOF'
@@ -110,7 +110,7 @@ jobs:
         
     - name: Verify deployment
       env:
-        PA_DOMAIN: ${{ secrets.PA_DOMAIN }}
+        PA_DOMAIN: ${{ secrets.DOMAIN_NAME }}
       run: |
         echo "Verifying deployment at https://$PA_DOMAIN"
         # Wait a moment for the app to fully reload
@@ -129,7 +129,7 @@ jobs:
       run: |
         echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
         echo "- **Target**: PythonAnywhere" >> $GITHUB_STEP_SUMMARY
-        echo "- **Domain**: ${{ secrets.PA_DOMAIN }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Domain**: ${{ secrets.DOMAIN_NAME }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
