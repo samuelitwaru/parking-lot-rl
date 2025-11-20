@@ -1,7 +1,5 @@
 import numpy as np
-import pygame
 import random
-import math
 from typing import Tuple, List, Dict, Optional
 from dataclasses import dataclass
 from enum import Enum
