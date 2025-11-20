@@ -112,14 +112,14 @@ jobs:
         
     - name: Verify deployment
       env:
-        PA_DOMAIN: ${{ secrets.DOMAIN_NAME }}
+        DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
       run: |
-        echo "Verifying deployment at https://$PA_DOMAIN"
+        echo "Verifying deployment at https://$DOMAIN_NAME"
         # Wait a moment for the app to fully reload
         sleep 10
         
         # Check if the app is responding
-        if curl -f -s "https://$PA_DOMAIN" > /dev/null; then
+        if curl -f -s "https://$DOMAIN_NAME" > /dev/null; then
           echo "✓ Web app is responding successfully"
         else
           echo "✗ Web app may not be responding correctly"
