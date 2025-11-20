@@ -25,9 +25,9 @@ jobs:
         
     - name: Deploy to PythonAnywhere
       env:
-        PA_USERNAME: ${{ secrets.USERNAME }}
-        PA_API_TOKEN: ${{ secrets.API_TOKEN }}
-        PA_DOMAIN: ${{ secrets.DOMAIN_NAME }}
+        USERNAME: ${{ secrets.USERNAME }}
+        API_TOKEN: ${{ secrets.API_TOKEN }}
+        DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
       run: |
         # Create deployment script
         cat > deploy_script.py << 'EOF'
@@ -36,9 +36,9 @@ jobs:
         import sys
         
         # PythonAnywhere API configuration
-        username = os.environ.get('PA_USERNAME')
-        api_token = os.environ.get('PA_API_TOKEN')  
-        domain = os.environ.get('PA_DOMAIN')
+        username = os.environ.get('USERNAME')
+        api_token = os.environ.get('API_TOKEN')  
+        domain = os.environ.get('DOMAIN_NAME')
         
         if not all([username, api_token, domain]):
             print("Missing required environment variables")
