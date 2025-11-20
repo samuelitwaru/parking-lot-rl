@@ -1,0 +1,10 @@
+in the docs folder, create the following md files relating to the project:
+
+1. problem fomulation: Real-world Problem: Clear definition of a problem suited for RL (e.g., resource allocation, dynamic pricing, autonomous navigation). MDP Definition: Formal definition of the State space (S), Action space (A), Reward function (R), and Transition Dynamics (P).
+
+2. Algorithm Choice: Justification for the chosen RL algorithm (e.g., DQN)
+
+3. Simulation & Training: 
+      Environment Setup:Description of the simulation environment, 
+      Hyperparameter Tuning:Discussion of critical hyperparameters and an initial tuning strategy. 
+      Evaluation Metrics: Definition of specific metrics for agent performance

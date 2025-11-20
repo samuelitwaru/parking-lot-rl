@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Lot RL Environment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            opacity: 0.8;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .environment-panel {
+            flex: 2;
+            padding: 20px;
+            border-right: 2px solid #ecf0f1;
+        }
+
+        .control-panel {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .parking-grid {
+            display: grid;
+            gap: 2px;
+            background: #34495e;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            max-width: 600px;
+        }
+
+        .grid-cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .grid-cell.empty {
+            background: #ecf0f1;
+            border: 2px solid #bdc3c7;
+        }
+
+        .grid-cell.empty:hover {
+            background: #d5dbdb;
+            transform: scale(1.05);
+        }
+
+        .grid-cell.occupied {
+            background: #e74c3c;
+            color: white;
+            border: 2px solid #c0392b;
+        }
+
+        .grid-cell.entry {
+            background: #27ae60;
+            color: white;
+            border: 2px solid #229954;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .control-group h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn.danger {
+            background: #e74c3c;
+        }
+
+        .btn.danger:hover {
+            background: #c0392b;
+        }
+
+        .btn.success {
+            background: #27ae60;
+        }
+
+        .btn.success:hover {
+            background: #229954;
+        }
+
+        .btn.warning {
+            background: #f39c12;
+        }
+
+        .btn.warning:hover {
+            background: #e67e22;
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .input-group {
+            margin: 10px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .stats {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-value {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .queue {
+            margin-top: 15px;
+        }
+
+        .queue-item {
+            background: #ecf0f1;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+        .message.error {
+            background: #fadbd8;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .message.info {
+            background: #d6eaf8;
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .environment-panel {
+                border-right: none;
+                border-bottom: 2px solid #ecf0f1;
+            }
+            
+            .grid-cell {
+                width: 40px;
+                height: 40px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Parking Lot RL Environment</h1>
+            <p>Interactive Reinforcement Learning Simulation</p>
+        </div>
+
+        <div class="main-content">
+            <div class="environment-panel">
+                <div id="environment-section">
+                    <h2>Environment Setup</h2>
+                    <div class="control-group">
+                        <h3>Create New Environment</h3>
+                        <div class="input-group">
+                            <label for="width">Width:</label>
+                            <input type="number" id="width" value="10" min="3" max="15">
+                        </div>
+                        <div class="input-group">
+                            <label for="height">Height:</label>
+                            <input type="number" id="height" value="8" min="3" max="12">
+                        </div>
+                        <div class="input-group">
+                            <label for="entry-x">Entry X:</label>
+                            <input type="number" id="entry-x" value="0" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="entry-y">Entry Y:</label>
+                            <input type="number" id="entry-y" value="4" min="0">
+                        </div>
+                        <button class="btn success" onclick="createEnvironment()">Create Environment</button>
+                        <button class="btn" onclick="testSocketIO()" style="background: #27ae60; margin-top: 10px;">Test API Connection</button>
+                        <button class="btn" onclick="toggleDebugPanel()" style="background: #f39c12; margin-top: 10px;">Toggle Debug</button>
+                    </div>
+                </div>
+
+                <div id="grid-section" style="display: none;">
+                    <h2>Parking Lot Grid</h2>
+                    <div id="parking-grid" class="parking-grid"></div>
+            <div id="message-area"></div>
+            
+            <!-- Debug Panel -->
+            <div id="debug-panel" style="display: none; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 15px; margin-top: 20px;">
+                <h4>Debug Information</h4>
+                <div id="debug-content">
+                    <p><strong>Connection Status:</strong> <span id="socket-status">Polling Inactive</span></p>
+                    <p><strong>Current Environment:</strong> <span id="current-env">None</span></p>
+                    <p><strong>Last Event:</strong> <span id="last-event">None</span></p>
+                    <div id="event-log" style="max-height: 200px; overflow-y: auto; background: white; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                        <strong>Event Log:</strong><br>
+                    </div>
+                </div>
+            </div>
+        </div>                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Processing...</p>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="control-group">
+                    <h3>Environment Controls</h3>
+                    <button class="btn" onclick="resetEnvironment()" id="reset-btn" disabled>Reset Environment</button>
+                    <button class="btn warning" onclick="toggleAutoMode()" id="auto-btn" disabled>Start Auto Mode</button>
+                </div>
+
+                <div class="control-group">
+                    <h3>Training Controls</h3>
+                    <div class="input-group">
+                        <label for="episodes">Episodes:</label>
+                        <input type="number" id="episodes" value="100" min="10" max="1000">
+                    </div>
+                    <div class="input-group">
+                        <label for="max-steps">Max Steps per Episode:</label>
+                        <input type="number" id="max-steps" value="50" min="10" max="200">
+                    </div>
+                    <button class="btn success" onclick="startTraining()" id="train-btn" disabled>Start Training</button>
+                    <div id="training-progress" style="display: none;">
+                        <p>Training in progress...</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group" id="stats-section" style="display: none;">
+                    <h3>Statistics</h3>
+                    <div class="stats" id="stats-display"></div>
+                </div>
+
+                <div class="control-group" id="queue-section" style="display: none;">
+                    <h3>Car Queue</h3>
+                    <div id="queue-display"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEnvironment = null;
+        let pollingInterval = null;
+        let isPolling = false;
+
+        // Initialize AJAX polling
+        function initializePolling() {
+            console.log('Initializing AJAX polling...');
+            showMessage('AJAX polling initialized', 'success');
+        }
+
+        // Start polling for updates
+        function startPolling() {
+            if (isPolling || !currentEnvironment) return;
+            
+            isPolling = true;
+            pollingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/poll/${currentEnvironment}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Update current state
+                        updateDisplay(data.current_state);
+                        
+                        // Process updates
+                        data.updates.forEach(update => {
+                            handleUpdate(update);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+            }, 1000); // Poll every 1 second
+        }
+
+        // Stop polling
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                isPolling = false;
+            }
+        }
+
+        // Handle different types of updates
+        function handleUpdate(update) {
+            console.log('Handling update:', update);
+            logEvent(update.type, update.data);
+            
+            switch (update.type) {
+                case 'environment_update':
+                    if (update.data.action_result) {
+                        showMessage(`${update.data.action_result.type} Action: ${update.data.action_result.result.message}`, 'info');
+                    }
+                    break;
+                    
+                case 'training_status':
+                    handleTrainingUpdate(update.data);
+                    break;
+                    
+                case 'auto_mode_heartbeat':
+                    if (update.data.active) {
+                        document.title = `Parking Lot RL - Auto Step ${update.data.step}`;
+                    }
+                    break;
+                    
+                case 'environment_created':
+                    showMessage(update.data.message, 'info');
+                    break;
+            }
+        }
+
+        // Handle training updates
+        function handleTrainingUpdate(data) {
+            if (data.status === 'started') {
+                showMessage(`Training started: ${data.episodes} episodes`, 'info');
+            } else if (data.status === 'completed') {
+                document.getElementById('training-progress').style.display = 'none';
+                document.getElementById('train-btn').disabled = false;
+                
+                if (data.success) {
+                    showMessage(`Training completed! Average score: ${data.average_score.toFixed(2)}`, 'success');
+                } else {
+                    showMessage(`Training failed: ${data.error}`, 'error');
+                }
+            } else if (data.status === 'failed') {
+                document.getElementById('training-progress').style.display = 'none';
+                document.getElementById('train-btn').disabled = false;
+                showMessage(`Training failed: ${data.error}`, 'error');
+            }
+        }
+
+        // Create new environment
+        async function createEnvironment() {
+            const width = parseInt(document.getElementById('width').value);
+            const height = parseInt(document.getElementById('height').value);
+            const entryX = parseInt(document.getElementById('entry-x').value);
+            const entryY = parseInt(document.getElementById('entry-y').value);
+
+            showLoading(true);
+
+            try {
+                const response = await fetch('/create_environment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        width: width,
+                        height: height,
+                        entry_x: entryX,
+                        entry_y: entryY
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentEnvironment = data.env_id;
+                    document.getElementById('environment-section').style.display = 'none';
+                    document.getElementById('grid-section').style.display = 'block';
+                    document.getElementById('stats-section').style.display = 'block';
+                    document.getElementById('queue-section').style.display = 'block';
+                    
+                    // Enable controls
+                    document.getElementById('reset-btn').disabled = false;
+                    document.getElementById('auto-btn').disabled = false;
+                    document.getElementById('train-btn').disabled = false;
+
+                    updateDisplay(data.state);
+                    showMessage('Environment created successfully!', 'success');
+
+                    // Start polling for updates
+                    console.log('Starting polling for environment:', currentEnvironment);
+                    startPolling();
+                } else {
+                    showMessage('Failed to create environment', 'error');
+                }
+            } catch (error) {
+                showMessage('Error creating environment: ' + error.message, 'error');
+            }
+
+            showLoading(false);
+        }
+
+        // Update display with current state
+        function updateDisplay(state) {
+            updateGrid(state.grid, state.width, state.height);
+            updateStats(state.stats);
+            updateQueue(state.queue_cars, state.queue_length);
+            updateAutoButton(state.auto_mode);
+        }
+
+        // Update parking grid
+        function updateGrid(grid, width, height) {
+            const gridElement = document.getElementById('parking-grid');
+            gridElement.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
+            gridElement.innerHTML = '';
+
+            for (let row = 0; row < height; row++) {
+                for (let col = 0; col < width; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.onclick = () => takeAction(row * width + col);
+
+                    const cellData = grid[row][col];
+                    
+                    if (cellData.type === 'entry') {
+                        cell.className += ' entry';
+                        cell.textContent = 'ENTRY';
+                    } else if (cellData.type === 'occupied') {
+                        cell.className += ' occupied';
+                        cell.innerHTML = `C${cellData.car_id}<br>T:${cellData.time_remaining}`;
+                    } else {
+                        cell.className += ' empty';
+                        cell.textContent = `${col},${row}`;
+                    }
+
+                    gridElement.appendChild(cell);
+                }
+            }
+        }
+
+        // Update statistics display
+        function updateStats(stats) {
+            const statsElement = document.getElementById('stats-display');
+            statsElement.innerHTML = `
+                <div class="stat-item">
+                    <span class="stat-label">Total Cars Parked:</span>
+                    <span class="stat-value">${stats.total_cars_parked}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Successful Parks:</span>
+                    <span class="stat-value">${stats.successful_parks}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Failed Attempts:</span>
+                    <span class="stat-value">${stats.failed_attempts}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Success Rate:</span>
+                    <span class="stat-value">${(stats.success_rate * 100).toFixed(1)}%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Occupancy Rate:</span>
+                    <span class="stat-value">${(stats.occupancy_rate * 100).toFixed(1)}%</span>
+                </div>
+            `;
+        }
+
+        // Update queue display
+        function updateQueue(queueCars, queueLength) {
+            const queueElement = document.getElementById('queue-display');
+            let queueHtml = `<p><strong>Cars in queue: ${queueLength}</strong></p>`;
+            
+            queueCars.forEach(car => {
+                queueHtml += `<div class="queue-item">Car ${car.id}: ${car.parking_time}min</div>`;
+            });
+
+            if (queueLength > queueCars.length) {
+                queueHtml += `<div class="queue-item">... and ${queueLength - queueCars.length} more</div>`;
+            }
+
+            queueElement.innerHTML = queueHtml;
+        }
+
+        // Take action (click on grid cell)
+        async function takeAction(action) {
+            if (!currentEnvironment) return;
+
+            try {
+                const response = await fetch(`/action/${currentEnvironment}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({action: action})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updateDisplay(data.state);
+                    showMessage(data.action_result.message, data.action_result.success ? 'success' : 'error');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error taking action: ' + error.message, 'error');
+            }
+        }
+
+        // Reset environment
+        async function resetEnvironment() {
+            if (!currentEnvironment) return;
+
+            try {
+                const response = await fetch(`/reset/${currentEnvironment}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updateDisplay(data.state);
+                    showMessage('Environment reset successfully!', 'success');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error resetting environment: ' + error.message, 'error');
+            }
+        }
+
+        // Toggle auto mode
+        async function toggleAutoMode() {
+            if (!currentEnvironment) return;
+
+            try {
+                const response = await fetch(`/auto_mode/${currentEnvironment}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updateDisplay(data.state);
+                    showMessage(data.message, 'info');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error toggling auto mode: ' + error.message, 'error');
+            }
+        }
+
+        // Update auto button text
+        function updateAutoButton(autoMode) {
+            const autoBtn = document.getElementById('auto-btn');
+            autoBtn.textContent = autoMode ? 'Stop Auto Mode' : 'Start Auto Mode';
+            autoBtn.className = autoMode ? 'btn danger' : 'btn warning';
+        }
+
+        // Start training
+        async function startTraining() {
+            if (!currentEnvironment) return;
+
+            const episodes = parseInt(document.getElementById('episodes').value);
+            const maxSteps = parseInt(document.getElementById('max-steps').value);
+
+            document.getElementById('train-btn').disabled = true;
+            document.getElementById('training-progress').style.display = 'block';
+
+            try {
+                const response = await fetch(`/train/${currentEnvironment}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        episodes: episodes,
+                        max_steps_per_episode: maxSteps
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(data.message, 'info');
+                } else {
+                    showMessage(data.message, 'error');
+                    document.getElementById('train-btn').disabled = false;
+                    document.getElementById('training-progress').style.display = 'none';
+                }
+            } catch (error) {
+                showMessage('Error starting training: ' + error.message, 'error');
+                document.getElementById('train-btn').disabled = false;
+                document.getElementById('training-progress').style.display = 'none';
+            }
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('message-area');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            
+            messageArea.innerHTML = '';
+            messageArea.appendChild(messageDiv);
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        // Show/hide loading
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // Test SocketIO connection
+        function testSocketIO() {
+            if (socket && socket.connected) {
+                showMessage('Socket is connected! Testing emission...', 'info');
+                socket.emit('test_connection', {message: 'Test from client'});
+            } else {
+                showMessage('Socket is not connected!', 'error');
+                // Try to reconnect
+                socket.connect();
+            }
+        }
+
+        // Test SocketIO connection
+        function testSocketIO() {
+            if (socket && socket.connected) {
+                showMessage('Socket is connected! Testing emission...', 'info');
+                socket.emit('test_connection', {message: 'Test from client'});
+            } else {
+                showMessage('Socket is not connected!', 'error');
+                // Try to reconnect
+                socket.connect();
+            }
+        }
+
+        // Toggle debug panel
+        function toggleDebugPanel() {
+            const panel = document.getElementById('debug-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            updateDebugInfo();
+        }
+
+        // Update debug information
+        function updateDebugInfo() {
+            document.getElementById('socket-status').textContent = isPolling ? 'Polling Active' : 'Polling Inactive';
+            document.getElementById('current-env').textContent = currentEnvironment || 'None';
+        }
+
+        // Log events for debugging
+        function logEvent(eventName, data) {
+            const log = document.getElementById('event-log');
+            if (log) {
+                const timestamp = new Date().toLocaleTimeString();
+                log.innerHTML += `<div style="font-size: 12px; margin: 2px 0;">[${timestamp}] ${eventName}: ${JSON.stringify(data).substring(0, 100)}...</div>`;
+                log.scrollTop = log.scrollHeight;
+                
+                // Keep only last 20 events
+                const events = log.getElementsByTagName('div');
+                while (events.length > 21) { // 20 events + header
+                    events[1].remove();
+                }
+                
+                document.getElementById('last-event').textContent = `${eventName} at ${timestamp}`;
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePolling();
+        });
+
+        // Clean up polling when page is unloaded
+        window.addEventListener('beforeunload', function() {
+            stopPolling();
+        });
+    </script>
+</body>
+</html>

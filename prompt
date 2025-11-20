@@ -1,0 +1,11 @@
+create a parking lot environment reinforcement training simulation with pygame visualization. the parking lot will be a grid and for each step, the cars will be randomly assigned to different grids. theses grids
+will be marked as occupied, and the rest as unoccupied.
+
+In training the model, a free parking space will be identified by randomly picking a grid. if the grid picked is occupied, then there is a negative reward. 
+if the grid picked is unoccupied, then there is a positive reward. bonus reward will calculated according to how close the unoccupied grid picked is to the parking lot entry. the closer the grid picked to the entry,
+the higher the bonus reward since the aim project objective is to minimize time spent to park for drivers. 
+
+for every step there will be a queue of cars randomly generated coming in to park. when a car has parked, a time period random time period is assigned to the car and once it has counted down to 0, the grid is rendered as unoccuped.
+
+create the pygame simulation.
+create the training environement

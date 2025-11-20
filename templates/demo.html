@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚗 Parking Lot AI Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.2em;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 70vh;
+        }
+
+        .demo-panel {
+            flex: 2;
+            padding: 30px;
+        }
+
+        .control-panel {
+            flex: 1;
+            padding: 30px;
+            background: #f8f9fa;
+            border-left: 3px solid #3498db;
+        }
+
+        .parking-grid {
+            display: grid;
+            gap: 3px;
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            max-width: 650px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .grid-cell {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 11px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .grid-cell:hover::before {
+            opacity: 1;
+        }
+
+        .grid-cell.empty {
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+            color: #2c3e50;
+            border: 2px solid #95a5a6;
+        }
+
+        .grid-cell.empty:hover {
+            background: linear-gradient(135deg, #d5dbdb, #a6b3b5);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .grid-cell.occupied {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: 2px solid #a93226;
+            animation: pulse 2s infinite;
+        }
+
+        .grid-cell.entry {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            border: 2px solid #1e8449;
+            font-size: 10px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .controls {
+            margin-bottom: 25px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #3498db;
+        }
+
+        .control-group h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .control-group h3::before {
+            content: '🎮';
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn.danger:hover {
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn.success:hover {
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn.warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+        }
+
+        .btn.warning:hover {
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .stats {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #27ae60;
+        }
+
+        .stats h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .stats h3::before {
+            content: '📊';
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        .stat-value {
+            color: #3498db;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .queue {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #f39c12;
+        }
+
+        .queue h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .queue h3::before {
+            content: '🚗';
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .queue-item {
+            background: linear-gradient(135deg, #ecf0f1, #d5dbdb);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+        }
+
+        .queue-item::before {
+            content: '🚙';
+            margin-right: 8px;
+        }
+
+        .message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, #d5f4e6, #a8e6cf);
+            color: #27ae60;
+            border-left: 4px solid #27ae60;
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, #fadbd8, #f1948a);
+            color: #e74c3c;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .message.info {
+            background: linear-gradient(135deg, #d6eaf8, #aed6f1);
+            color: #3498db;
+            border-left: 4px solid #3498db;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.online {
+            background: #27ae60;
+            animation: pulse-green 2s infinite;
+        }
+
+        .status-indicator.offline {
+            background: #e74c3c;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .action-log {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .action-log-item {
+            margin: 5px 0;
+            padding: 5px;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .demo-panel {
+                padding: 20px;
+            }
+            
+            .control-panel {
+                border-left: none;
+                border-top: 3px solid #3498db;
+            }
+            
+            .grid-cell {
+                width: 45px;
+                height: 45px;
+                font-size: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Parking Lot AI Demo</h1>
+            <p>Watch AI agents learn to park efficiently!</p>
+        </div>
+
+        <div class="main-content">
+            <div class="demo-panel">
+                <div id="connection-status">
+                    <span class="status-indicator offline" id="status-dot"></span>
+                    Connecting to demo...
+                </div>
+                
+                <div id="parking-grid" class="parking-grid" style="display: none;"></div>
+                
+                <div id="message-area"></div>
+                
+                <div id="action-log" class="action-log" style="display: none;">
+                    <strong>Action Log:</strong>
+                    <div id="log-content"></div>
+                </div>
+
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Initializing AI Demo...</p>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="control-group">
+                    <h3>Demo Controls</h3>
+                    <button class="btn success" onclick="startDemo()" id="start-btn">Start Demo</button>
+                    <button class="btn" onclick="resetDemo()" id="reset-btn" disabled>Reset</button>
+                    <button class="btn warning" onclick="toggleAutoMode()" id="auto-btn" disabled>Start Auto Mode</button>
+                    <button class="btn" onclick="takeAutoStep()" id="step-btn" disabled>AI Step</button>
+                </div>
+
+                <div class="stats" id="stats-section" style="display: none;">
+                    <h3>Statistics</h3>
+                    <div id="stats-display"></div>
+                </div>
+
+                <div class="queue" id="queue-section" style="display: none;">
+                    <h3>Car Queue</h3>
+                    <div id="queue-display"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        let socket = null;
+        let demoState = null;
+
+        // Initialize socket connection
+        function initializeSocket() {
+            socket = io();
+            
+            socket.on('connect', function() {
+                console.log('Connected to demo server');
+                updateConnectionStatus(true);
+            });
+
+            socket.on('disconnect', function() {
+                console.log('Disconnected from demo server');
+                updateConnectionStatus(false);
+            });
+
+            socket.on('connected', function(data) {
+                console.log('Demo connected:', data.message);
+                if (data.state) {
+                    updateDisplay(data.state);
+                }
+            });
+
+            socket.on('demo_update', function(data) {
+                console.log('Demo update received');
+                updateDisplay(data.state);
+                if (data.action_result) {
+                    logAction(data.action_result);
+                }
+            });
+        }
+
+        // Update connection status
+        function updateConnectionStatus(connected) {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('connection-status');
+            
+            if (connected) {
+                statusDot.className = 'status-indicator online';
+                statusText.innerHTML = '<span class="status-indicator online"></span>Connected to demo server';
+            } else {
+                statusDot.className = 'status-indicator offline';
+                statusText.innerHTML = '<span class="status-indicator offline"></span>Disconnected from server';
+            }
+        }
+
+        // Start demo
+        async function startDemo() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/start_demo');
+                const data = await response.json();
+
+                if (data.success) {
+                    demoState = data.state;
+                    updateDisplay(data.state);
+                    showMessage(data.message, 'success');
+                    
+                    // Enable controls
+                    document.getElementById('reset-btn').disabled = false;
+                    document.getElementById('auto-btn').disabled = false;
+                    document.getElementById('step-btn').disabled = false;
+                    document.getElementById('start-btn').disabled = true;
+                    
+                    // Show sections
+                    document.getElementById('parking-grid').style.display = 'grid';
+                    document.getElementById('stats-section').style.display = 'block';
+                    document.getElementById('queue-section').style.display = 'block';
+                    document.getElementById('action-log').style.display = 'block';
+                    
+                    if (data.trainer_ready) {
+                        showMessage('AI agent loaded and ready!', 'info');
+                    }
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error starting demo: ' + error.message, 'error');
+            }
+
+            showLoading(false);
+        }
+
+        // Update display with current state
+        function updateDisplay(state) {
+            if (!state) return;
+            
+            demoState = state;
+            updateGrid(state.grid, state.width, state.height);
+            updateStats(state.stats);
+            updateQueue(state.queue_cars, state.queue_length);
+            updateAutoButton(state.auto_mode);
+        }
+
+        // Update parking grid
+        function updateGrid(grid, width, height) {
+            const gridElement = document.getElementById('parking-grid');
+            gridElement.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
+            gridElement.innerHTML = '';
+
+            for (let row = 0; row < height; row++) {
+                for (let col = 0; col < width; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.onclick = () => takeManualAction(row * width + col);
+
+                    const cellData = grid[row][col];
+                    
+                    if (cellData.type === 'entry') {
+                        cell.className += ' entry';
+                        cell.innerHTML = 'ENTRY';
+                    } else if (cellData.type === 'occupied') {
+                        cell.className += ' occupied';
+                        cell.innerHTML = `C${cellData.car_id}<br>T:${cellData.time_remaining}`;
+                    } else {
+                        cell.className += ' empty';
+                        cell.innerHTML = `${col},${row}`;
+                    }
+
+                    gridElement.appendChild(cell);
+                }
+            }
+        }
+
+        // Update statistics display
+        function updateStats(stats) {
+            const statsElement = document.getElementById('stats-display');
+            statsElement.innerHTML = `
+                <div class="stat-item">
+                    <span class="stat-label">Total Cars Parked:</span>
+                    <span class="stat-value">${stats.total_cars_parked}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Successful Parks:</span>
+                    <span class="stat-value">${stats.successful_parks}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Success Rate:</span>
+                    <span class="stat-value">${(stats.success_rate * 100).toFixed(1)}%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Occupancy:</span>
+                    <span class="stat-value">${(stats.occupancy_rate * 100).toFixed(1)}%</span>
+                </div>
+            `;
+        }
+
+        // Update queue display
+        function updateQueue(queueCars, queueLength) {
+            const queueElement = document.getElementById('queue-display');
+            let queueHtml = `<p><strong>Cars waiting: ${queueLength}</strong></p>`;
+            
+            queueCars.forEach(car => {
+                queueHtml += `<div class="queue-item">Car ${car.id}: ${car.parking_time}min</div>`;
+            });
+
+            if (queueLength > queueCars.length) {
+                queueHtml += `<div class="queue-item">... and ${queueLength - queueCars.length} more</div>`;
+            }
+
+            queueElement.innerHTML = queueHtml;
+        }
+
+        // Take manual action (click on grid cell)
+        async function takeManualAction(action) {
+            if (!demoState) return;
+
+            try {
+                const response = await fetch(`/action/${action}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    updateDisplay(data.state);
+                    logAction(data.action_result);
+                    showMessage(data.action_result.message, data.action_result.success ? 'success' : 'error');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error taking action: ' + error.message, 'error');
+            }
+        }
+
+        // Take automatic step
+        async function takeAutoStep() {
+            if (!demoState) return;
+
+            try {
+                const response = await fetch('/auto_step');
+                const data = await response.json();
+
+                if (data.success) {
+                    updateDisplay(data.state);
+                    logAction(data.action_result);
+                    if (data.action_result) {
+                        showMessage(`${data.action_result.action_type} chose ${data.action_result.coordinates}: ${data.action_result.message}`, 'info');
+                    }
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error taking auto step: ' + error.message, 'error');
+            }
+        }
+
+        // Toggle auto mode
+        async function toggleAutoMode() {
+            if (!demoState) return;
+
+            try {
+                const response = await fetch('/toggle_auto_mode');
+                const data = await response.json();
+
+                if (data.success) {
+                    updateDisplay(data.state);
+                    showMessage(data.message, 'info');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error toggling auto mode: ' + error.message, 'error');
+            }
+        }
+
+        // Reset demo
+        async function resetDemo() {
+            if (!demoState) return;
+
+            try {
+                const response = await fetch('/reset');
+                const data = await response.json();
+
+                if (data.success) {
+                    updateDisplay(data.state);
+                    showMessage(data.message, 'success');
+                    clearActionLog();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error resetting demo: ' + error.message, 'error');
+            }
+        }
+
+        // Update auto button text
+        function updateAutoButton(autoMode) {
+            const autoBtn = document.getElementById('auto-btn');
+            autoBtn.textContent = autoMode ? 'Stop Auto Mode' : 'Start Auto Mode';
+            autoBtn.className = autoMode ? 'btn danger' : 'btn warning';
+        }
+
+        // Log action to action log
+        function logAction(actionResult) {
+            const logContent = document.getElementById('log-content');
+            const logItem = document.createElement('div');
+            logItem.className = 'action-log-item';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const actionType = actionResult.action_type || 'Manual';
+            const coordinates = actionResult.coordinates || `Action ${actionResult.action || '?'}`;
+            const reward = actionResult.reward || 0;
+            
+            logItem.innerHTML = `[${timestamp}] ${actionType}: ${coordinates} → Reward: ${reward.toFixed(1)}`;
+            
+            logContent.appendChild(logItem);
+            logContent.scrollTop = logContent.scrollHeight;
+            
+            // Keep only last 50 entries
+            while (logContent.children.length > 50) {
+                logContent.removeChild(logContent.firstChild);
+            }
+        }
+
+        // Clear action log
+        function clearActionLog() {
+            document.getElementById('log-content').innerHTML = '';
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('message-area');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            
+            messageArea.innerHTML = '';
+            messageArea.appendChild(messageDiv);
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Show/hide loading
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSocket();
+        });
+    </script>
+</body>
+</html>
