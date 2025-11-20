@@ -430,6 +430,5 @@ def test_connection():
 if __name__ == '__main__':
     # Create models directory
     os.makedirs('models', exist_ok=True)
-    
     # Run the app
     app.run(debug=True, host='0.0.0.0', port=5000)
