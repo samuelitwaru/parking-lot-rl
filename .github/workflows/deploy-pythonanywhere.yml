@@ -46,6 +46,8 @@ jobs:
             
         base_url = f'https://www.pythonanywhere.com/api/v0/user/{username}/'
         headers = {'Authorization': f'Token {api_token}'}
+
+        print('base_url:', base_url)
         
         print("Starting deployment to PythonAnywhere...")
         
