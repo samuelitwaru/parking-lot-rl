@@ -350,7 +350,7 @@
                 </div>
 
                 <div id="grid-section" style="display: none;">
-                    <h2>Parking Lot Grid - </h2>
+                    <h2>Parking Lot Grid - <span id='envSpan'></span></h2>
                     <div id="parking-grid" class="parking-grid"></div>
             <div id="message-area"></div>
             
@@ -415,6 +415,7 @@
         let currentEnvironment = null;
         let pollingInterval = null;
         let isPolling = false;
+        let envSpan = document.getElementById('envSpan')
 
         // Initialize AJAX polling
         function initializePolling() {
@@ -535,6 +536,7 @@
                     document.getElementById('grid-section').style.display = 'block';
                     document.getElementById('stats-section').style.display = 'block';
                     document.getElementById('queue-section').style.display = 'block';
+                    envSpan.innerHTML = currentEnvironment
                     
                     // Enable controls
                     document.getElementById('reset-btn').disabled = false;
