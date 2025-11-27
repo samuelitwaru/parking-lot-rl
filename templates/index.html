@@ -317,7 +317,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚗 Parking Lot RL Environment</h1>
+            <h1>Parking Lot RL Environment</h1>
             <p>Interactive Reinforcement Learning Simulation</p>
         </div>
 
@@ -344,13 +344,13 @@
                             <input type="number" id="entry-y" value="4" min="0">
                         </div>
                         <button class="btn success" onclick="createEnvironment()">Create Environment</button>
-                        <button class="btn" onclick="testSocketIO()" style="background: #27ae60; margin-top: 10px;">Test API Connection</button>
-                        <button class="btn" onclick="toggleDebugPanel()" style="background: #f39c12; margin-top: 10px;">Toggle Debug</button>
+                        <button class="btn" onclick="testSocketIO()" style="background: #27ae60; margin-top: 10px; display: none;">Test API Connection</button>
+                        <button class="btn" onclick="toggleDebugPanel()" style="background: #f39c12; margin-top: 10px; display: none;">Toggle Debug</button>
                     </div>
                 </div>
 
                 <div id="grid-section" style="display: none;">
-                    <h2>Parking Lot Grid</h2>
+                    <h2>Parking Lot Grid - </h2>
                     <div id="parking-grid" class="parking-grid"></div>
             <div id="message-area"></div>
             
@@ -376,7 +376,7 @@
                 <div class="control-group">
                     <h3>Environment Controls</h3>
                     <button class="btn" onclick="resetEnvironment()" id="reset-btn" disabled>Reset Environment</button>
-                    <button class="btn warning" onclick="toggleAutoMode()" id="auto-btn" disabled>Start Auto Mode</button>
+                    <button class="btn warning" onclick="toggleAutoMode()" id="auto-btn" disabled>Test Model</button>
                 </div>
 
                 <div class="control-group">
@@ -711,7 +711,7 @@
         // Update auto button text
         function updateAutoButton(autoMode) {
             const autoBtn = document.getElementById('auto-btn');
-            autoBtn.textContent = autoMode ? 'Stop Auto Mode' : 'Start Auto Mode';
+            autoBtn.textContent = autoMode ? 'Stop Auto Mode' : 'Test Model';
             autoBtn.className = autoMode ? 'btn danger' : 'btn warning';
         }
 

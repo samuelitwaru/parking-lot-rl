@@ -454,7 +454,7 @@
                     <h3>Demo Controls</h3>
                     <button class="btn success" onclick="startDemo()" id="start-btn">Start Demo</button>
                     <button class="btn" onclick="resetDemo()" id="reset-btn" disabled>Reset</button>
-                    <button class="btn warning" onclick="toggleAutoMode()" id="auto-btn" disabled>Start Auto Mode</button>
+                    <button class="btn warning" onclick="toggleAutoMode()" id="auto-btn" disabled>Test Model</button>
                     <button class="btn" onclick="takeAutoStep()" id="step-btn" disabled>AI Step</button>
                 </div>
 
@@ -722,7 +722,7 @@
         // Update auto button text
         function updateAutoButton(autoMode) {
             const autoBtn = document.getElementById('auto-btn');
-            autoBtn.textContent = autoMode ? 'Stop Auto Mode' : 'Start Auto Mode';
+            autoBtn.textContent = autoMode ? 'Stop Auto Mode' : 'Test Model';
             autoBtn.className = autoMode ? 'btn danger' : 'btn warning';
         }
 

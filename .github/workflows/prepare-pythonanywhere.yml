@@ -1,149 +1,149 @@
-name: Prepare for PythonAnywhere
+# name: Prepare for PythonAnywhere
 
-on:
-  workflow_dispatch:
+# on:
+#   workflow_dispatch:
   
-jobs:
-  prepare:
-    runs-on: ubuntu-latest
+# jobs:
+#   prepare:
+#     runs-on: ubuntu-latest
     
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+#     steps:
+#     - name: Checkout repository
+#       uses: actions/checkout@v4
       
-    - name: Create PythonAnywhere configuration files
-      run: |
-        # Create WSGI file for PythonAnywhere
-        cat > wsgi.py << 'EOF'
-        # WSGI configuration file for PythonAnywhere
-        import sys
-        import os
+#     - name: Create PythonAnywhere configuration files
+#       run: |
+#         # Create WSGI file for PythonAnywhere
+#         cat > wsgi.py << 'EOF'
+#         # WSGI configuration file for PythonAnywhere
+#         import sys
+#         import os
         
-        # Add your project directory to the Python path
-        project_home = '/home/yourusername/parking-lot-rl'
-        if project_home not in sys.path:
-            sys.path.insert(0, project_home)
+#         # Add your project directory to the Python path
+#         project_home = '/home/yourusername/parking-lot-rl'
+#         if project_home not in sys.path:
+#             sys.path.insert(0, project_home)
             
-        # Set environment variables
-        os.environ['FLASK_APP'] = 'app.py'
-        os.environ['FLASK_ENV'] = 'production'
+#         # Set environment variables
+#         os.environ['FLASK_APP'] = 'app.py'
+#         os.environ['FLASK_ENV'] = 'production'
         
-        # Import your Flask application
-        from app import app as application
+#         # Import your Flask application
+#         from app import app as application
         
-        if __name__ == "__main__":
-            application.run()
-        EOF
+#         if __name__ == "__main__":
+#             application.run()
+#         EOF
         
-        # Create requirements.txt if it doesn't exist
-        if [ ! -f requirements.txt ]; then
-          cat > requirements.txt << 'EOF'
-        Flask==2.3.3
-        torch==2.1.0
-        numpy==1.25.2
-        pygame==2.5.2
-        matplotlib==3.7.2
-        Werkzeug==2.3.7
-        Jinja2==3.1.2
-        click==8.1.7
-        itsdangerous==2.1.2
-        MarkupSafe==2.1.3
-        EOF
-        fi
+#         # Create requirements.txt if it doesn't exist
+#         if [ ! -f requirements.txt ]; then
+#           cat > requirements.txt << 'EOF'
+#         Flask==2.3.3
+#         torch==2.1.0
+#         numpy==1.25.2
+#         pygame==2.5.2
+#         matplotlib==3.7.2
+#         Werkzeug==2.3.7
+#         Jinja2==3.1.2
+#         click==8.1.7
+#         itsdangerous==2.1.2
+#         MarkupSafe==2.1.3
+#         EOF
+#         fi
         
-        # Create deployment instructions
-        cat > DEPLOYMENT.md << 'EOF'
-        # PythonAnywhere Deployment Guide
+#         # Create deployment instructions
+#         cat > DEPLOYMENT.md << 'EOF'
+#         # PythonAnywhere Deployment Guide
         
-        ## Prerequisites
-        1. Create a PythonAnywhere account
-        2. Generate an API token from your account settings
-        3. Set up GitHub repository secrets
+#         ## Prerequisites
+#         1. Create a PythonAnywhere account
+#         2. Generate an API token from your account settings
+#         3. Set up GitHub repository secrets
         
-        ## GitHub Secrets Required
-        Add these secrets to your repository (Settings → Secrets and variables → Actions):
+#         ## GitHub Secrets Required
+#         Add these secrets to your repository (Settings → Secrets and variables → Actions):
         
-        - `PA_USERNAME`: Your PythonAnywhere username
-        - `PA_API_TOKEN`: Your PythonAnywhere API token
-        - `PA_DOMAIN`: Your web app domain (e.g., yourusername.pythonanywhere.com)
+#         - `PA_USERNAME`: Your PythonAnywhere username
+#         - `PA_API_TOKEN`: Your PythonAnywhere API token
+#         - `PA_DOMAIN`: Your web app domain (e.g., yourusername.pythonanywhere.com)
         
-        ## Manual Setup Steps
+#         ## Manual Setup Steps
         
-        ### 1. Clone Repository on PythonAnywhere
-        ```bash
-        cd ~
-        git clone https://github.com/samuelitwaru/parking-lot-rl.git
-        cd parking-lot-rl
-        ```
+#         ### 1. Clone Repository on PythonAnywhere
+#         ```bash
+#         cd ~
+#         git clone https://github.com/samuelitwaru/parking-lot-rl.git
+#         cd parking-lot-rl
+#         ```
         
-        ### 2. Install Dependencies
-        ```bash
-        pip3.11 install --user -r requirements.txt
-        ```
+#         ### 2. Install Dependencies
+#         ```bash
+#         pip3.11 install --user -r requirements.txt
+#         ```
         
-        ### 3. Create Web App
-        1. Go to PythonAnywhere Dashboard → Web
-        2. Click "Add a new web app"
-        3. Choose "Manual configuration"
-        4. Select Python 3.11
+#         ### 3. Create Web App
+#         1. Go to PythonAnywhere Dashboard → Web
+#         2. Click "Add a new web app"
+#         3. Choose "Manual configuration"
+#         4. Select Python 3.11
         
-        ### 4. Configure WSGI File
-        1. In the Web tab, click on the WSGI configuration file link
-        2. Replace the contents with the wsgi.py file from this repository
-        3. Update the project_home path to match your username
+#         ### 4. Configure WSGI File
+#         1. In the Web tab, click on the WSGI configuration file link
+#         2. Replace the contents with the wsgi.py file from this repository
+#         3. Update the project_home path to match your username
         
-        ### 5. Set Static Files (Optional)
-        If you have static files:
-        - URL: /static/
-        - Directory: /home/yourusername/parking-lot-rl/static/
+#         ### 5. Set Static Files (Optional)
+#         If you have static files:
+#         - URL: /static/
+#         - Directory: /home/yourusername/parking-lot-rl/static/
         
-        ### 6. Enable the Web App
-        Click the "Reload" button in the Web tab
+#         ### 6. Enable the Web App
+#         Click the "Reload" button in the Web tab
         
-        ## Automated Deployment
-        Once manual setup is complete, the GitHub Actions workflow will:
-        1. Pull latest code from the repository
-        2. Install/update dependencies
-        3. Reload the web application
-        4. Verify deployment
+#         ## Automated Deployment
+#         Once manual setup is complete, the GitHub Actions workflow will:
+#         1. Pull latest code from the repository
+#         2. Install/update dependencies
+#         3. Reload the web application
+#         4. Verify deployment
         
-        ## Troubleshooting
+#         ## Troubleshooting
         
-        ### Common Issues
-        1. **Import errors**: Check that all dependencies are installed with `--user` flag
-        2. **Path issues**: Verify the project_home path in wsgi.py
-        3. **Permission issues**: Ensure files are readable by the web server
+#         ### Common Issues
+#         1. **Import errors**: Check that all dependencies are installed with `--user` flag
+#         2. **Path issues**: Verify the project_home path in wsgi.py
+#         3. **Permission issues**: Ensure files are readable by the web server
         
-        ### Logs
-        Check error logs in PythonAnywhere:
-        - Dashboard → Tasks → Error logs
-        - Dashboard → Web → Error logs
+#         ### Logs
+#         Check error logs in PythonAnywhere:
+#         - Dashboard → Tasks → Error logs
+#         - Dashboard → Web → Error logs
         
-        ### Testing Locally
-        ```bash
-        # Activate virtual environment
-        source venv/Scripts/activate  # Windows
-        source venv/bin/activate      # Linux/Mac
+#         ### Testing Locally
+#         ```bash
+#         # Activate virtual environment
+#         source venv/Scripts/activate  # Windows
+#         source venv/bin/activate      # Linux/Mac
         
-        # Run the application
-        python app.py
-        ```
-        EOF
+#         # Run the application
+#         python app.py
+#         ```
+#         EOF
         
-        echo "PythonAnywhere configuration files created!"
+#         echo "PythonAnywhere configuration files created!"
         
-    - name: Commit configuration files
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add wsgi.py DEPLOYMENT.md
-        if [ -f requirements.txt ]; then
-          git add requirements.txt
-        fi
-        git diff --staged --quiet || git commit -m "Add PythonAnywhere deployment configuration"
+#     - name: Commit configuration files
+#       run: |
+#         git config --local user.email "action@github.com"
+#         git config --local user.name "GitHub Action"
+#         git add wsgi.py DEPLOYMENT.md
+#         if [ -f requirements.txt ]; then
+#           git add requirements.txt
+#         fi
+#         git diff --staged --quiet || git commit -m "Add PythonAnywhere deployment configuration"
         
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
+#     - name: Push changes
+#       uses: ad-m/github-push-action@master
+#       with:
+#         github_token: ${{ secrets.GITHUB_TOKEN }}
+#         branch: ${{ github.ref }}

@@ -1,0 +1,69 @@
+# Dockerignore file for Parking Lot RL Flask App
+# Ignore version control
+.git
+.gitignore
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Ignore virtual environments
+venv/
+env/
+ENV/
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore test files
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Ignore documentation source (keep built docs)
+docs/
+
+# Ignore development files
+.env
+.env.local
+.env.development
+
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/
+
+# Ignore node modules if any
+node_modules/
+
+# Keep important directories but ignore their contents initially
+models/*
+!models/.gitkeep
+
+# Ignore CI/CD files (not needed in container)
+.github/
+.travis.yml
+.circleci/
+
+# Ignore Docker files themselves
+Dockerfile
+docker-compose.yml
+.dockerignore
